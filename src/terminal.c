@@ -133,8 +133,8 @@ void drawCharacter(char character, uint32_t x, uint32_t y, uint32_t colour)
 
 void drop()
 {
-    copyMemory32(window->buffer + window->bufferWidth * 32, window->buffer, window->bufferWidth * (window->bufferHeight - 32));
-    setMemory32(window->buffer + window->bufferWidth * (window->bufferHeight - 32), 0, window->bufferWidth * 32);
+    copyMemory32(window->buffer + window->bufferWidth * font->height, window->buffer, window->bufferWidth * (window->bufferHeight - font->height));
+    setMemory32(window->buffer + window->bufferWidth * (window->bufferHeight - font->height), 0, window->bufferWidth * font->height);
 }
 
 void terminalPut(char character)
