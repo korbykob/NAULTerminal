@@ -233,7 +233,7 @@ void entry()
     readBmp((BmpHeader*)getFile("/programs/terminal/desktop.bmp", 0), window->icon);
     setMemory32(window->buffer, 0, window->bufferWidth * window->bufferHeight);
     registerTty(&ttyBuffer);
-    font = (PsfFile*)getFile("/naul/font.psf", 0);
+    font = (PsfFile*)getFile("/naul/font16.psf", 0);
     fontWidth = font->width + 1;
     fontHeight = font->height;
     terminalWidth = window->bufferWidth / fontWidth;
