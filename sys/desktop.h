@@ -2,7 +2,6 @@
 
 #include <definitions.h>
 #include <ipc.h>
-#include <mem.h>
 
 #define IPC_NAME "desktop"
 #define CLOSE_EVENT 0
