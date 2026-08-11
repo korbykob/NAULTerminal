@@ -106,7 +106,9 @@ bool caps = false;
 TtyBuffer ttyBuffer = { 0 };
 bool waitingColour = false;
 uint64_t shellId = 0;
+uint64_t waitingId = 0;
 bool exiting = false;
+bool shellDead = false;
 
 void drawCharacter(char character, uint32_t x, uint32_t y, uint32_t colour)
 {
@@ -212,12 +214,14 @@ void terminalPut(char character)
     drawCharacter('_', cursorX * fontWidth, cursorY * fontHeight, colours[colour]);
 }
 
+void waitThread()
+{
+    waitForThread(shellId);
+    shellDead = true;
+}
+
 void exitTerminal()
 {
-    copyString("exit", ttyBuffer.readBuffer);
-    ttyBuffer.readCursor = 4;
-    ttyBuffer.readBuffer = 0;
-    waitForThread(shellId);
     unregisterTty(&ttyBuffer);
     destroyWindow(window);
     quit();
@@ -244,6 +248,7 @@ void entry()
     bool blink = false;
     uint64_t last = getFemtoseconds();
     shellId = execute("/programs/shell/shell.nxe");
+    waitingId = createThread(waitThread);
     while (true)
     {
         while (ttyBuffer.writeTail != ttyBuffer.writeHead)
@@ -291,10 +296,6 @@ void entry()
                                 if (window->events[window->eventsTail].keyEvent.pressed)
                                 {
                                     ttyBuffer.readBuffer[ttyBuffer.readCursor] = '\0';
-                                    if (compareStrings(ttyBuffer.readBuffer, "exit") == 0)
-                                    {
-                                        exitTerminal();
-                                    }
                                     terminalPut('\n');
                                     ttyBuffer.readBuffer = 0;
                                 }
@@ -323,8 +324,17 @@ void entry()
             drawCharacter('_', cursorX * fontWidth, cursorY * fontHeight, blink ? colours[colour] : 0);
             blink = !blink;
         }
+        if (shellDead)
+        {
+            exitTerminal();
+        }
         if (exiting && ttyBuffer.readBuffer)
         {
+            destroyThread(waitingId);
+            copyString("exit", ttyBuffer.readBuffer);
+            ttyBuffer.readCursor = 4;
+            ttyBuffer.readBuffer = 0;
+            waitForThread(shellId);
             exitTerminal();
         }
         yieldThread();
