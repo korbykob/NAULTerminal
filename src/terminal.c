@@ -330,11 +330,10 @@ void entry()
         }
         if (exiting && ttyBuffer.readBuffer)
         {
-            destroyThread(waitingId);
             copyString("exit", ttyBuffer.readBuffer);
             ttyBuffer.readCursor = 4;
             ttyBuffer.readBuffer = 0;
-            waitForThread(shellId);
+            waitForThread(waitingId);
             exitTerminal();
         }
         yieldThread();
